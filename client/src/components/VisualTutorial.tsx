@@ -466,6 +466,107 @@ function LongDivisionDemo() {
   );
 }
 
+function AlgebraicDivisionDemo() {
+  const [step, setStep] = useState(0);
+  const maxSteps = 6;
+  const steps = [
+    { text: "What if we think of division as a puzzle? Let's find the missing number!" },
+    { text: "We want to find X - what times 4 equals 1.00?" },
+    { text: "We write it as: 4 × X = 1.00" },
+    { text: "To find X, we divide both sides by 4" },
+    { text: "X = 1.00 ÷ 4" },
+    { text: "X = 0.25! So 4 × 0.25 = 1.00" },
+  ];
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-800 min-w-[280px]">
+        <div className="font-mono text-xl md:text-2xl space-y-3 text-center">
+          {step === 0 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-3xl">
+              <span className="text-blue-600 dark:text-blue-400">4</span>
+              <span className="mx-2">×</span>
+              <span className="text-purple-600 dark:text-purple-400 font-bold">?</span>
+              <span className="mx-2">=</span>
+              <span className="text-green-600 dark:text-green-400">1.00</span>
+            </motion.div>
+          )}
+          
+          {step >= 1 && step < 3 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-3xl">
+              <span className="text-blue-600 dark:text-blue-400">4</span>
+              <span className="mx-2">×</span>
+              <span className="text-purple-600 dark:text-purple-400 font-bold italic">X</span>
+              <span className="mx-2">=</span>
+              <span className="text-green-600 dark:text-green-400">1.00</span>
+            </motion.div>
+          )}
+
+          {step >= 3 && step < 5 && (
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
+              <div className="text-2xl text-muted-foreground line-through opacity-50">
+                4 × X = 1.00
+              </div>
+              <div className="text-3xl">
+                <span className="text-purple-600 dark:text-purple-400 font-bold italic">X</span>
+                <span className="mx-2">=</span>
+                <div className="inline-flex flex-col items-center mx-1">
+                  <span className="text-green-600 dark:text-green-400 border-b-2 border-foreground px-2">1.00</span>
+                  <span className="text-blue-600 dark:text-blue-400">4</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {step >= 5 && (
+            <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-3">
+              <div className="text-2xl text-muted-foreground">
+                X = 1.00 ÷ 4
+              </div>
+              <div className="text-4xl font-bold">
+                <span className="text-purple-600 dark:text-purple-400 italic">X</span>
+                <span className="mx-2">=</span>
+                <span className="text-green-600 dark:text-green-400">0.25</span>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      {step >= 5 && (
+        <motion.div 
+          className="bg-green-100 dark:bg-green-900/30 p-4 rounded-xl border-2 border-green-300 dark:border-green-700"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+        >
+          <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-2 text-center">Verify our answer!</p>
+          <div className="font-mono text-xl text-center">
+            <span className="text-blue-600 dark:text-blue-400">4</span>
+            <span className="mx-1">×</span>
+            <span className="text-green-600 dark:text-green-400">0.25</span>
+            <span className="mx-1">=</span>
+            <span className="font-bold">1.00</span>
+            <span className="ml-2 text-green-600 dark:text-green-400">✓</span>
+          </div>
+        </motion.div>
+      )}
+
+      <motion.p key={step} className="text-center font-semibold text-base px-4" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+        {steps[step].text}
+      </motion.p>
+      
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} data-testid="button-algebra-prev">
+          <ChevronLeft className="w-4 h-4" /> Back
+        </Button>
+        <Button size="sm" onClick={() => setStep(Math.min(maxSteps - 1, step + 1))} disabled={step === maxSteps - 1} data-testid="button-algebra-next">
+          Next <ChevronRight className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function CurrencySplitDemo() {
   const [dollars, setDollars] = useState(2);
   const [people, setPeople] = useState(4);
@@ -647,6 +748,11 @@ const lessonTutorials: Record<string, TutorialStep[]> = {
       title: "Division with Decimals",
       description: "Now let's try with dollars and cents. The same method works with decimals too!",
       visual: <LongDivisionDemo />,
+    },
+    {
+      title: "The Algebra Way",
+      description: "Here's a cool trick - we can think of division as solving a puzzle! What number times 4 equals 1.00?",
+      visual: <AlgebraicDivisionDemo />,
     },
     {
       title: "Try Different Amounts",
