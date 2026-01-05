@@ -8,12 +8,13 @@ import { Mascot } from "@/components/Mascot";
 import { GameBadge } from "@/components/Badge";
 import { LessonIntro } from "@/components/LessonIntro";
 import { Quiz } from "@/components/Quiz";
+import { VisualTutorial } from "@/components/VisualTutorial";
 import { Star, Trophy, ArrowLeft, Flame } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Lesson, Question, UserProgress } from "@shared/schema";
 import backgroundImage from "@assets/freepik__sara-is-an-elementary-school-teacher-in-a-fairytal__4_1767594478975.png";
 
-type GameState = "welcome" | "intro" | "quiz" | "complete";
+type GameState = "welcome" | "intro" | "tutorial" | "quiz" | "complete";
 
 export default function Home() {
   const [gameState, setGameState] = useState<GameState>("welcome");
@@ -47,6 +48,10 @@ export default function Home() {
   };
 
   const handleStartQuiz = () => {
+    setGameState("tutorial");
+  };
+
+  const handleTutorialComplete = () => {
     setGameState("quiz");
   };
 
@@ -282,6 +287,13 @@ export default function Home() {
 
         {gameState === "intro" && selectedLesson && (
           <LessonIntro lesson={selectedLesson} onStart={handleStartQuiz} />
+        )}
+
+        {gameState === "tutorial" && selectedLesson && (
+          <VisualTutorial
+            lessonId={selectedLesson.id}
+            onComplete={handleTutorialComplete}
+          />
         )}
 
         {gameState === "quiz" && questions.length > 0 && (
