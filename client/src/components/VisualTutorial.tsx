@@ -81,85 +81,232 @@ function PizzaSliceDemo() {
   );
 }
 
-function DivisionDemo() {
-  const [step, setStep] = useState(0);
-  const totalItems = 12;
-  const groups = 4;
-  const perGroup = totalItems / groups;
+function Coin({ type, size = "md" }: { type: "quarter" | "half" | "dollar"; size?: "sm" | "md" }) {
+  const sizes = size === "sm" ? "w-8 h-8 text-xs" : "w-12 h-12 text-sm";
+  const colors = {
+    quarter: "bg-gradient-to-br from-gray-300 to-gray-400 border-gray-500",
+    half: "bg-gradient-to-br from-gray-200 to-gray-300 border-gray-400",
+    dollar: "bg-gradient-to-br from-yellow-300 to-yellow-500 border-yellow-600",
+  };
+  const labels = { quarter: "25¢", half: "50¢", dollar: "$1" };
+
+  return (
+    <motion.div
+      className={`${sizes} ${colors[type]} rounded-full border-2 flex items-center justify-center font-bold shadow-md`}
+      whileHover={{ scale: 1.1 }}
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+    >
+      {labels[type]}
+    </motion.div>
+  );
+}
+
+function MeetTheMoneyDemo() {
+  const [selectedCombo, setSelectedCombo] = useState(0);
+  const combos = [
+    { coins: ["quarter", "quarter", "quarter", "quarter"], label: "4 quarters", value: "1.00" },
+    { coins: ["half", "half"], label: "2 half-dollars", value: "1.00" },
+    { coins: ["dollar"], label: "1 dollar", value: "1.00" },
+    { coins: ["half", "quarter", "quarter"], label: "1 half + 2 quarters", value: "1.00" },
+  ];
+  const combo = combos[selectedCombo];
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="text-center mb-2">
-        <p className="text-lg font-semibold">{totalItems} cookies shared among {groups} friends</p>
+      <div className="flex gap-2 justify-center flex-wrap">
+        {combo.coins.map((type, i) => (
+          <motion.div key={`${selectedCombo}-${i}`} initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: i * 0.15 }}>
+            <Coin type={type as "quarter" | "half" | "dollar"} />
+          </motion.div>
+        ))}
       </div>
-      
+      <motion.div key={selectedCombo} initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="text-center bg-green-100 dark:bg-green-900/30 px-6 py-3 rounded-xl">
+        <p className="font-bold text-lg">{combo.label}</p>
+        <p className="text-2xl font-display font-bold text-green-600 dark:text-green-400">= ${combo.value}</p>
+      </motion.div>
+      <div className="flex gap-2 flex-wrap justify-center">
+        {combos.map((c, i) => (
+          <Button key={i} size="sm" variant={i === selectedCombo ? "default" : "outline"} onClick={() => setSelectedCombo(i)} data-testid={`button-combo-${i}`}>
+            {c.label}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ShareTheDollarDemo() {
+  const [distributed, setDistributed] = useState(false);
+  const friends = 4;
+  const quartersEach = 1;
+
+  return (
+    <div className="flex flex-col items-center gap-4">
       <AnimatePresence mode="wait">
-        {step === 0 ? (
-          <motion.div
-            key="pile"
-            className="flex flex-wrap justify-center gap-2 max-w-[200px]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            {Array.from({ length: totalItems }).map((_, i) => (
-              <motion.div
-                key={i}
-                className="w-8 h-8 rounded-full bg-amber-600 border-2 border-amber-800 flex items-center justify-center"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <div className="w-2 h-2 rounded-full bg-amber-900" />
-              </motion.div>
-            ))}
+        {!distributed ? (
+          <motion.div key="pile" className="flex flex-col items-center gap-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="flex gap-2">
+              {[0, 1, 2, 3].map((i) => (
+                <motion.div key={i} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: i * 0.1 }}>
+                  <Coin type="quarter" />
+                </motion.div>
+              ))}
+            </div>
+            <p className="text-center font-semibold">$1.00 in quarters</p>
           </motion.div>
         ) : (
-          <motion.div
-            key="divided"
-            className="grid grid-cols-4 gap-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            {Array.from({ length: groups }).map((_, g) => (
-              <div key={g} className="flex flex-col items-center gap-1">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-sm font-bold">
-                  {g + 1}
+          <motion.div key="split" className="grid grid-cols-4 gap-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            {Array.from({ length: friends }).map((_, f) => (
+              <div key={f} className="flex flex-col items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center font-bold text-sm">
+                  {f + 1}
                 </div>
-                <div className="flex flex-col gap-1">
-                  {Array.from({ length: perGroup }).map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="w-6 h-6 rounded-full bg-amber-600 border border-amber-800"
-                      initial={{ scale: 0, y: -20 }}
-                      animate={{ scale: 1, y: 0 }}
-                      transition={{ delay: g * 0.2 + i * 0.1 }}
-                    />
-                  ))}
-                </div>
+                {Array.from({ length: quartersEach }).map((_, q) => (
+                  <motion.div key={q} initial={{ y: -30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: f * 0.2 }}>
+                    <Coin type="quarter" size="sm" />
+                  </motion.div>
+                ))}
+                <p className="text-xs font-semibold text-green-600 dark:text-green-400">$0.25</p>
               </div>
             ))}
           </motion.div>
         )}
       </AnimatePresence>
-      
-      <div className="text-center">
-        <p className="text-xl font-display font-bold">
-          {totalItems} ÷ {groups} = {perGroup}
-        </p>
-        <p className="text-muted-foreground text-sm">
-          Each friend gets {perGroup} cookies!
-        </p>
+      <div className="text-center bg-muted p-3 rounded-xl">
+        <p className="text-xl font-display font-bold">$1.00 ÷ 4 = $0.25</p>
+        <p className="text-sm text-muted-foreground">Each friend gets 1 quarter!</p>
+        <p className="text-sm font-semibold text-purple-600 dark:text-purple-400 mt-1">1/4 of a dollar = 25 cents</p>
       </div>
-      
-      <Button
-        size="sm"
-        onClick={() => setStep(step === 0 ? 1 : 0)}
-        data-testid="button-toggle-division"
-      >
+      <Button size="sm" onClick={() => setDistributed(!distributed)} data-testid="button-share-dollar">
         <Play className="w-4 h-4 mr-1" />
-        {step === 0 ? "Divide Them!" : "Start Over"}
+        {distributed ? "Start Over" : "Share It!"}
       </Button>
+    </div>
+  );
+}
+
+function LongDivisionDemo() {
+  const [step, setStep] = useState(0);
+  const maxSteps = 5;
+  const steps = [
+    { highlight: "setup", text: "Set up: 1.00 ÷ 4" },
+    { highlight: "decimal", text: "Place decimal point above" },
+    { highlight: "step1", text: "4 goes into 10 → 2 times (8)" },
+    { highlight: "step2", text: "10 - 8 = 2, bring down 0" },
+    { highlight: "step3", text: "4 goes into 20 → 5 times. Answer: 0.25!" },
+  ];
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border-2 border-amber-200 dark:border-amber-800">
+        <div className="font-mono text-xl md:text-2xl space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">4</span>
+            <span className="border-l-2 border-t-2 border-foreground pl-2 pt-1">
+              <motion.span className={step >= 1 ? "text-green-600 dark:text-green-400 font-bold" : ""} animate={{ opacity: step >= 1 ? 1 : 0.3 }}>0.</motion.span>
+              <motion.span className={step >= 2 ? "text-green-600 dark:text-green-400 font-bold" : ""} animate={{ opacity: step >= 2 ? 1 : 0.3 }}>2</motion.span>
+              <motion.span className={step >= 4 ? "text-green-600 dark:text-green-400 font-bold" : ""} animate={{ opacity: step >= 4 ? 1 : 0.3 }}>5</motion.span>
+            </span>
+          </div>
+          <div className="flex items-center gap-2 pl-4">
+            <span className="border-l-2 border-foreground pl-2">1.00</span>
+          </div>
+          {step >= 2 && (
+            <motion.div className="pl-6 text-sm text-muted-foreground" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <div>- 8 (4×2)</div>
+              <div className="border-t border-foreground">20</div>
+            </motion.div>
+          )}
+          {step >= 4 && (
+            <motion.div className="pl-6 text-sm text-muted-foreground" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <div>-20 (4×5)</div>
+              <div className="border-t border-foreground">0</div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+      <motion.p key={step} className="text-center font-semibold text-lg" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+        {steps[step].text}
+      </motion.p>
+      <div className="flex items-center gap-2 bg-green-100 dark:bg-green-900/30 px-4 py-2 rounded-lg">
+        <Coin type="quarter" size="sm" />
+        <span className="font-bold">= $0.25 = 25¢</span>
+      </div>
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} data-testid="button-division-prev">
+          <ChevronLeft className="w-4 h-4" /> Back
+        </Button>
+        <Button size="sm" onClick={() => setStep(Math.min(maxSteps - 1, step + 1))} disabled={step === maxSteps - 1} data-testid="button-division-next">
+          Next <ChevronRight className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function CurrencySplitDemo() {
+  const [dollars, setDollars] = useState(2);
+  const [people, setPeople] = useState(4);
+  const perPerson = dollars / people;
+  const cents = Math.round(perPerson * 100);
+  const quartersCount = Math.floor(cents / 25);
+  const remainingAfterQuarters = cents % 25;
+  const dimesCount = Math.floor(remainingAfterQuarters / 10);
+  const nickelsCount = Math.floor((remainingAfterQuarters % 10) / 5);
+  const penniesCount = remainingAfterQuarters % 5;
+
+  const getCoinBreakdown = () => {
+    const parts = [];
+    if (quartersCount > 0) parts.push(`${quartersCount} quarter${quartersCount > 1 ? "s" : ""}`);
+    if (dimesCount > 0) parts.push(`${dimesCount} dime${dimesCount > 1 ? "s" : ""}`);
+    if (nickelsCount > 0) parts.push(`${nickelsCount} nickel${nickelsCount > 1 ? "s" : ""}`);
+    if (penniesCount > 0) parts.push(`${penniesCount} penn${penniesCount > 1 ? "ies" : "y"}`);
+    return parts.length > 0 ? parts.join(" + ") : "0 cents";
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div className="flex items-center gap-4">
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground mb-1">Amount</p>
+          <div className="flex gap-1">
+            {Array.from({ length: dollars }).map((_, i) => (
+              <motion.div key={i} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: i * 0.1 }}>
+                <Coin type="dollar" size="sm" />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+        <span className="text-3xl font-bold text-muted-foreground">÷</span>
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground mb-1">Friends</p>
+          <div className="flex gap-1">
+            {Array.from({ length: people }).map((_, i) => (
+              <div key={i} className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-sm font-bold">
+                {i + 1}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <motion.div key={`${dollars}-${people}`} className="text-center bg-muted p-4 rounded-xl" initial={{ scale: 0.9 }} animate={{ scale: 1 }}>
+        <p className="text-2xl font-display font-bold">${dollars}.00 ÷ {people} = ${perPerson.toFixed(2)}</p>
+        <p className="text-muted-foreground text-sm">Each person gets {getCoinBreakdown()}</p>
+        <p className="text-xs text-muted-foreground mt-1">({cents} cents each)</p>
+      </motion.div>
+      <div className="flex gap-4">
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => setDollars(Math.max(1, dollars - 1))} disabled={dollars <= 1} data-testid="button-less-dollars">-</Button>
+          <span className="font-bold">${dollars}</span>
+          <Button size="sm" variant="outline" onClick={() => setDollars(Math.min(4, dollars + 1))} disabled={dollars >= 4} data-testid="button-more-dollars">+</Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => setPeople(Math.max(2, people - 1))} disabled={people <= 2} data-testid="button-less-people">-</Button>
+          <span className="font-bold">{people} ppl</span>
+          <Button size="sm" variant="outline" onClick={() => setPeople(Math.min(5, people + 1))} disabled={people >= 5} data-testid="button-more-people">+</Button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -261,23 +408,24 @@ const lessonTutorials: Record<string, TutorialStep[]> = {
   ],
   "lesson-2": [
     {
-      title: "What is Division?",
-      description: "Division means sharing equally! When you divide, you split things into equal groups so everyone gets the same amount.",
-      visual: (
-        <div className="text-center">
-          <div className="text-5xl font-display font-bold mb-4">
-            12 ÷ 4 = 3
-          </div>
-          <p className="text-muted-foreground">
-            12 things split into 4 groups = 3 in each group
-          </p>
-        </div>
-      ),
+      title: "Meet the Money!",
+      description: "Before we divide, let's learn about coins! Different coins can add up to the same amount. Tap each option to see!",
+      visual: <MeetTheMoneyDemo />,
     },
     {
-      title: "Try It: Share the Cookies",
-      description: "Watch how 12 cookies get divided equally among 4 friends!",
-      visual: <DivisionDemo />,
+      title: "Share the Dollar",
+      description: "Division means sharing equally! Watch how $1.00 (4 quarters) gets divided among 4 friends.",
+      visual: <ShareTheDollarDemo />,
+    },
+    {
+      title: "See the Math",
+      description: "Here's how we write the division step by step - just like you'd do on paper! Click Next to see each step.",
+      visual: <LongDivisionDemo />,
+    },
+    {
+      title: "Try Different Amounts",
+      description: "Now you try! Change the dollars and number of friends to see how division works with different amounts.",
+      visual: <CurrencySplitDemo />,
     },
   ],
   "lesson-3": [
