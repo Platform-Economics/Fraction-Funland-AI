@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,10 @@ import { Mascot } from "@/components/Mascot";
 import { GameBadge } from "@/components/Badge";
 import { LessonIntro } from "@/components/LessonIntro";
 import { Quiz } from "@/components/Quiz";
-import { ProgressBar } from "@/components/ProgressBar";
 import { Star, Trophy, ArrowLeft, Flame } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Lesson, Question, UserProgress } from "@shared/schema";
+import backgroundImage from "@assets/freepik__sara-is-an-elementary-school-teacher-in-a-fairytal__4_1767594478975.png";
 
 type GameState = "welcome" | "intro" | "quiz" | "complete";
 
@@ -96,7 +96,13 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-purple-50/30 to-pink-50/30 dark:from-background dark:via-purple-950/20 dark:to-pink-950/20">
+    <div className="min-h-screen relative">
+      <div 
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${backgroundImage})` }}
+      />
+      <div className="fixed inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background dark:from-background/80 dark:via-background/90 dark:to-background" />
+      <div className="relative z-10">
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -307,6 +313,7 @@ export default function Home() {
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 }
