@@ -327,51 +327,133 @@ function TraditionalDivisionDemo() {
 
 function LongDivisionDemo() {
   const [step, setStep] = useState(0);
-  const maxSteps = 5;
+  const maxSteps = 6;
   const steps = [
-    { highlight: "setup", text: "Set up: 1.00 ÷ 4" },
-    { highlight: "decimal", text: "Place decimal point above" },
-    { highlight: "step1", text: "4 goes into 10 → 2 times (8)" },
-    { highlight: "step2", text: "10 - 8 = 2, bring down 0" },
-    { highlight: "step3", text: "4 goes into 20 → 5 times. Answer: 0.25!" },
+    { text: "Let's divide $1.00 by 4 to find each person's share!" },
+    { text: "Set up the division house - 4 outside, 1.00 inside" },
+    { text: "4 goes into 10 how many times? 2 times! Write 0.2 above." },
+    { text: "2 × 4 = 8. Write 8 below and subtract: 10 - 8 = 2" },
+    { text: "Bring down the 0. 4 goes into 20... 5 times! Answer: 0.25" },
+    { text: "CHECK: 4 × 0.25 = 1.00. Each person gets 25 cents!" },
   ];
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border-2 border-amber-200 dark:border-amber-800">
-        <div className="font-mono text-xl md:text-2xl space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground">4</span>
-            <span className="border-l-2 border-t-2 border-foreground pl-2 pt-1">
-              <motion.span className={step >= 1 ? "text-green-600 dark:text-green-400 font-bold" : ""} animate={{ opacity: step >= 1 ? 1 : 0.3 }}>0.</motion.span>
-              <motion.span className={step >= 2 ? "text-green-600 dark:text-green-400 font-bold" : ""} animate={{ opacity: step >= 2 ? 1 : 0.3 }}>2</motion.span>
-              <motion.span className={step >= 4 ? "text-green-600 dark:text-green-400 font-bold" : ""} animate={{ opacity: step >= 4 ? 1 : 0.3 }}>5</motion.span>
-            </span>
+      <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-xl border-2 border-amber-200 dark:border-amber-800">
+        <div className="font-mono text-2xl md:text-3xl">
+          <div className="flex">
+            <div className="flex flex-col justify-end mr-2 pb-1">
+              <motion.span 
+                className="text-blue-600 dark:text-blue-400 font-bold"
+                animate={{ opacity: step >= 1 ? 1 : 0 }}
+              >
+                4
+              </motion.span>
+            </div>
+            <div className="flex flex-col">
+              <div className="flex justify-end pr-1 mb-1">
+                <motion.span 
+                  className="text-green-600 dark:text-green-400 font-bold"
+                  animate={{ opacity: step >= 2 ? 1 : 0 }}
+                >
+                  0.
+                </motion.span>
+                <motion.span 
+                  className="text-green-600 dark:text-green-400 font-bold"
+                  animate={{ opacity: step >= 2 ? 1 : 0 }}
+                >
+                  2
+                </motion.span>
+                <motion.span 
+                  className="text-green-600 dark:text-green-400 font-bold"
+                  animate={{ opacity: step >= 4 ? 1 : 0 }}
+                >
+                  5
+                </motion.span>
+              </div>
+              <motion.div 
+                className="border-l-[3px] border-t-[3px] border-foreground rounded-tl-sm pl-2 pt-1"
+                animate={{ opacity: step >= 1 ? 1 : 0 }}
+              >
+                <div className="flex">
+                  <span className={step >= 2 ? "text-muted-foreground" : ""}>1</span>
+                  <span>.</span>
+                  <span className={step >= 2 ? "text-purple-600 dark:text-purple-400 font-bold" : ""}>0</span>
+                  <span className={step >= 4 ? "text-muted-foreground" : ""}>0</span>
+                </div>
+              </motion.div>
+            </div>
           </div>
-          <div className="flex items-center gap-2 pl-4">
-            <span className="border-l-2 border-foreground pl-2">1.00</span>
+          
+          <div className="ml-8 mt-2 space-y-1 text-xl">
+            {step >= 3 && (
+              <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="flex items-center text-red-500 dark:text-red-400">
+                  <span className="w-6 text-right">-</span>
+                  <span className="w-4 text-right">8</span>
+                  <span className="text-sm text-muted-foreground ml-3">(4×2)</span>
+                </div>
+                <div className="border-t-2 border-foreground w-10 ml-1" />
+                <div className="flex">
+                  <span className="w-6"></span>
+                  <span>2</span>
+                  {step >= 4 && (
+                    <motion.span 
+                      initial={{ opacity: 0, y: -10 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      className="text-purple-600 dark:text-purple-400 font-bold"
+                    >
+                      0
+                    </motion.span>
+                  )}
+                </div>
+              </motion.div>
+            )}
+            {step >= 4 && (
+              <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="flex items-center text-red-500 dark:text-red-400">
+                  <span className="w-4 text-right">-</span>
+                  <span>20</span>
+                  <span className="text-sm text-muted-foreground ml-2">(4×5)</span>
+                </div>
+                <div className="border-t-2 border-foreground w-10 ml-1" />
+                <div className="flex">
+                  <span className="w-6"></span>
+                  <span className="text-green-600 dark:text-green-400 font-bold">0</span>
+                </div>
+              </motion.div>
+            )}
           </div>
-          {step >= 2 && (
-            <motion.div className="pl-6 text-sm text-muted-foreground" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <div>- 8 (4×2)</div>
-              <div className="border-t border-foreground">20</div>
-            </motion.div>
-          )}
-          {step >= 4 && (
-            <motion.div className="pl-6 text-sm text-muted-foreground" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <div>-20 (4×5)</div>
-              <div className="border-t border-foreground">0</div>
-            </motion.div>
-          )}
         </div>
       </div>
-      <motion.p key={step} className="text-center font-semibold text-lg" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+
+      {step >= 5 && (
+        <motion.div 
+          className="bg-green-100 dark:bg-green-900/30 p-4 rounded-xl border-2 border-green-300 dark:border-green-700"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+        >
+          <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-2 text-center">Check with Multiplication!</p>
+          <div className="font-mono text-xl text-center space-y-1">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-blue-600 dark:text-blue-400">4</span>
+              <span>×</span>
+              <span className="text-green-600 dark:text-green-400">0.25</span>
+              <span>=</span>
+              <span className="font-bold">1.00</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Coin type="quarter" size="sm" />
+              <span className="font-bold text-sm">Each person gets 25 cents!</span>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      <motion.p key={step} className="text-center font-semibold text-base px-4" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
         {steps[step].text}
       </motion.p>
-      <div className="flex items-center gap-2 bg-green-100 dark:bg-green-900/30 px-4 py-2 rounded-lg">
-        <Coin type="quarter" size="sm" />
-        <span className="font-bold">= $0.25 = 25¢</span>
-      </div>
+      
       <div className="flex gap-2">
         <Button size="sm" variant="outline" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} data-testid="button-division-prev">
           <ChevronLeft className="w-4 h-4" /> Back
