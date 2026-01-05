@@ -71,7 +71,7 @@ export default function Home() {
   };
 
   const getLessonIcon = (order: number) => {
-    const icons = ["1/2", "12÷4", "3/4", "×5"];
+    const icons = ["1/2", "12÷4", "2.5", "3/4"];
     return icons[(order - 1) % icons.length];
   };
 
