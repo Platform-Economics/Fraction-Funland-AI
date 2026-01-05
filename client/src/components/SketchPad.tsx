@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { PenLine, Eraser, RotateCcw, ChevronRight, X, Lightbulb } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { PenLine, Eraser, RotateCcw, ChevronRight, X, Lightbulb, Keyboard, Pencil } from "lucide-react";
 
 interface EquationStep {
   content: string;
@@ -21,6 +22,8 @@ export function SketchPad({ equation, steps, onClose }: SketchPadProps) {
   const [currentStep, setCurrentStep] = useState(-1);
   const [tool, setTool] = useState<"pen" | "eraser">("pen");
   const [revealedSteps, setRevealedSteps] = useState<number[]>([]);
+  const [mode, setMode] = useState<"draw" | "type">("draw");
+  const [typedWork, setTypedWork] = useState("");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -131,12 +134,12 @@ export function SketchPad({ equation, steps, onClose }: SketchPadProps) {
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="w-full max-w-2xl"
+        className="w-full max-w-2xl max-h-[90vh] overflow-hidden"
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
       >
-        <Card className="overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-4 flex items-center justify-between gap-4">
+        <Card className="overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-4 flex items-center justify-between gap-4 flex-shrink-0">
             <div className="flex items-center gap-2 text-white">
               <PenLine className="w-5 h-5" />
               <h3 className="font-display font-bold text-lg">Math Scratch Pad</h3>
@@ -146,67 +149,125 @@ export function SketchPad({ equation, steps, onClose }: SketchPadProps) {
             </Button>
           </div>
 
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-4 overflow-y-auto flex-1">
             <div className="text-center bg-muted p-3 rounded-xl">
               <p className="text-sm text-muted-foreground mb-1">Solve this problem:</p>
-              <p className="text-2xl font-display font-bold" data-testid="text-equation">{equation}</p>
+              <p className="text-xl md:text-2xl font-display font-bold break-words" data-testid="text-equation">{equation}</p>
             </div>
 
-            <div className="relative">
-              <canvas
-                ref={canvasRef}
-                className="w-full h-48 rounded-xl border-2 border-amber-300 cursor-crosshair touch-none"
-                onMouseDown={startDrawing}
-                onMouseMove={draw}
-                onMouseUp={stopDrawing}
-                onMouseLeave={stopDrawing}
-                onTouchStart={startDrawing}
-                onTouchMove={draw}
-                onTouchEnd={stopDrawing}
-                data-testid="canvas-sketchpad"
-              />
-
-              <AnimatePresence>
-                {revealedSteps.map((stepIndex) => (
-                  <motion.div
-                    key={stepIndex}
-                    className="absolute left-4 pointer-events-none font-mono text-lg"
-                    style={{ top: 20 + stepIndex * 28 }}
-                    initial={{ opacity: 1, x: 0 }}
-                    animate={{ opacity: 0.25 }}
-                    transition={{ delay: 2, duration: 1 }}
-                  >
-                    <span className="text-blue-800 dark:text-blue-300">{steps[stepIndex].content}</span>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+            <div className="flex gap-2 justify-center">
+              <Button
+                size="sm"
+                variant={mode === "draw" ? "default" : "outline"}
+                onClick={() => setMode("draw")}
+                data-testid="button-mode-draw"
+              >
+                <Pencil className="w-4 h-4 mr-1" />
+                Draw
+              </Button>
+              <Button
+                size="sm"
+                variant={mode === "type" ? "default" : "outline"}
+                onClick={() => setMode("type")}
+                data-testid="button-mode-type"
+              >
+                <Keyboard className="w-4 h-4 mr-1" />
+                Type
+              </Button>
             </div>
+
+            {mode === "draw" ? (
+              <div className="relative">
+                <canvas
+                  ref={canvasRef}
+                  className="w-full h-64 md:h-80 rounded-xl border-2 border-amber-300 cursor-crosshair touch-none"
+                  onMouseDown={startDrawing}
+                  onMouseMove={draw}
+                  onMouseUp={stopDrawing}
+                  onMouseLeave={stopDrawing}
+                  onTouchStart={startDrawing}
+                  onTouchMove={draw}
+                  onTouchEnd={stopDrawing}
+                  data-testid="canvas-sketchpad"
+                />
+
+                <AnimatePresence>
+                  {revealedSteps.map((stepIndex) => (
+                    <motion.div
+                      key={stepIndex}
+                      className="absolute left-4 pointer-events-none font-mono text-base md:text-lg"
+                      style={{ top: 16 + stepIndex * 24 }}
+                      initial={{ opacity: 1, x: 0 }}
+                      animate={{ opacity: 0.25 }}
+                      transition={{ delay: 2, duration: 1 }}
+                    >
+                      <span className="text-blue-800 dark:text-blue-300">{steps[stepIndex].content}</span>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="relative">
+                <Textarea
+                  value={typedWork}
+                  onChange={(e) => setTypedWork(e.target.value)}
+                  placeholder="Type your work here...
+
+Example:
+$1.00 ÷ 4 = ?
+
+Step 1: 4 goes into 10 = 2 times
+Step 2: 2 × 4 = 8
+Step 3: 10 - 8 = 2, bring down 0
+Step 4: 4 goes into 20 = 5 times
+Answer: 0.25"
+                  className="w-full h-64 md:h-80 font-mono text-base resize-none bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-300"
+                  data-testid="textarea-work"
+                />
+                {revealedSteps.length > 0 && (
+                  <div className="absolute top-2 left-3 pointer-events-none opacity-25 font-mono text-sm space-y-1">
+                    {revealedSteps.map((stepIndex) => (
+                      <div key={stepIndex} className="text-blue-800 dark:text-blue-300">
+                        {steps[stepIndex].content}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex items-center justify-between gap-2 flex-wrap">
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant={tool === "pen" ? "default" : "outline"}
-                  onClick={() => setTool("pen")}
-                  data-testid="button-pen"
-                >
-                  <PenLine className="w-4 h-4 mr-1" />
-                  Pen
-                </Button>
-                <Button
-                  size="sm"
-                  variant={tool === "eraser" ? "default" : "outline"}
-                  onClick={() => setTool("eraser")}
-                  data-testid="button-eraser"
-                >
-                  <Eraser className="w-4 h-4 mr-1" />
-                  Eraser
-                </Button>
-                <Button size="sm" variant="outline" onClick={clearCanvas} data-testid="button-clear">
+              {mode === "draw" ? (
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    size="sm"
+                    variant={tool === "pen" ? "default" : "outline"}
+                    onClick={() => setTool("pen")}
+                    data-testid="button-pen"
+                  >
+                    <PenLine className="w-4 h-4 mr-1" />
+                    Pen
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={tool === "eraser" ? "default" : "outline"}
+                    onClick={() => setTool("eraser")}
+                    data-testid="button-eraser"
+                  >
+                    <Eraser className="w-4 h-4 mr-1" />
+                    Eraser
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={clearCanvas} data-testid="button-clear">
+                    <RotateCcw className="w-4 h-4 mr-1" />
+                    Clear
+                  </Button>
+                </div>
+              ) : (
+                <Button size="sm" variant="outline" onClick={() => setTypedWork("")} data-testid="button-clear-text">
                   <RotateCcw className="w-4 h-4 mr-1" />
-                  Clear
+                  Clear Text
                 </Button>
-              </div>
+              )}
 
               <Button
                 size="sm"
@@ -216,7 +277,7 @@ export function SketchPad({ equation, steps, onClose }: SketchPadProps) {
                 data-testid="button-show-step"
               >
                 <Lightbulb className="w-4 h-4 mr-1" />
-                {currentStep === -1 ? "Show First Step" : currentStep >= steps.length - 1 ? "All Steps Shown" : "Show Next Step"}
+                {currentStep === -1 ? "Show Hint" : currentStep >= steps.length - 1 ? "All Steps Shown" : "Next Hint"}
                 {currentStep < steps.length - 1 && <ChevronRight className="w-4 h-4 ml-1" />}
               </Button>
             </div>
@@ -231,11 +292,11 @@ export function SketchPad({ equation, steps, onClose }: SketchPadProps) {
                 <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">
                   Step {currentStep + 1}: {steps[currentStep].explanation}
                 </p>
-                <p className="font-mono text-lg mt-1">{steps[currentStep].content}</p>
+                <p className="font-mono text-base md:text-lg mt-1">{steps[currentStep].content}</p>
               </motion.div>
             )}
 
-            <div className="flex justify-center gap-1">
+            <div className="flex justify-center gap-1 flex-wrap">
               {steps.map((_, i) => (
                 <div
                   key={i}
