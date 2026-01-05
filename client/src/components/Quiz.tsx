@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,8 @@ import { FractionVisual } from "./FractionVisual";
 import { AnswerOption } from "./AnswerOption";
 import { Mascot } from "./Mascot";
 import { CelebrationModal } from "./CelebrationModal";
-import { Lightbulb, ArrowRight } from "lucide-react";
+import { Lightbulb, ArrowRight, Volume2, VolumeX } from "lucide-react";
+import { soundManager } from "@/lib/sounds";
 import type { Question } from "@shared/schema";
 
 interface QuizProps {
@@ -24,6 +25,7 @@ export function Quiz({ questions, onComplete, onExit }: QuizProps) {
   const [score, setScore] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
   const [answers, setAnswers] = useState<boolean[]>([]);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   const currentQuestion = questions[currentIndex];
   const isLastQuestion = currentIndex === questions.length - 1;
@@ -31,6 +33,7 @@ export function Quiz({ questions, onComplete, onExit }: QuizProps) {
 
   const handleSelectAnswer = (answer: string) => {
     if (showResult) return;
+    soundManager.playClick();
     setSelectedAnswer(answer);
   };
 
@@ -43,12 +46,22 @@ export function Quiz({ questions, onComplete, onExit }: QuizProps) {
     
     if (correct) {
       setScore(score + 1);
+      soundManager.playCorrect();
+    } else {
+      soundManager.playWrong();
     }
   };
 
+  const toggleSound = () => {
+    const newState = !soundEnabled;
+    setSoundEnabled(newState);
+    soundManager.setEnabled(newState);
+  };
+
   const handleNext = () => {
+    soundManager.playClick();
     if (isLastQuestion) {
-      const finalScore = score + (isCorrect ? 0 : 0);
+      soundManager.playCelebration();
       setShowCelebration(true);
     } else {
       setCurrentIndex(currentIndex + 1);
@@ -90,11 +103,22 @@ export function Quiz({ questions, onComplete, onExit }: QuizProps) {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
-      <ProgressBar
-        current={currentIndex + 1}
-        total={questions.length}
-        className="mb-8"
-      />
+      <div className="flex items-center justify-between mb-4">
+        <ProgressBar
+          current={currentIndex + 1}
+          total={questions.length}
+          className="flex-1 mr-4"
+        />
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={toggleSound}
+          data-testid="button-toggle-sound"
+          aria-label={soundEnabled ? "Mute sounds" : "Enable sounds"}
+        >
+          {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+        </Button>
+      </div>
 
       <AnimatePresence mode="wait">
         <motion.div

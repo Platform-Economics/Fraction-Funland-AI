@@ -66,8 +66,24 @@ export default function Home() {
     setSelectedLesson(null);
   };
 
-  const currentLesson = lessons[0];
-  const lessonProgress = progress?.lessonProgress?.find(p => p.lessonId === currentLesson?.id);
+  const getLessonProgress = (lessonId: string) => {
+    return progress?.lessonProgress?.find(p => p.lessonId === lessonId);
+  };
+
+  const getLessonIcon = (order: number) => {
+    const icons = ["1/2", "12÷4", "3/4", "×5"];
+    return icons[(order - 1) % icons.length];
+  };
+
+  const getLessonGradient = (order: number) => {
+    const gradients = [
+      "from-purple-500 via-pink-500 to-orange-400",
+      "from-blue-500 via-cyan-500 to-green-400",
+      "from-orange-500 via-red-500 to-pink-400",
+      "from-green-500 via-teal-500 to-blue-400",
+    ];
+    return gradients[(order - 1) % gradients.length];
+  };
 
   if (loadingLessons || loadingProgress) {
     return (
@@ -163,61 +179,67 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h3 className="text-2xl font-display font-bold mb-6">Today's Lesson</h3>
+              <h3 className="text-2xl font-display font-bold mb-6">Your Lessons</h3>
               
-              {currentLesson && (
-                <Card
-                  className="overflow-hidden cursor-pointer hover-elevate active-elevate-2"
-                  onClick={() => handleSelectLesson(currentLesson)}
-                  data-testid="card-lesson-1"
-                >
-                  <div className="grid md:grid-cols-3 gap-0">
-                    <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 p-6 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <div className="text-6xl font-display font-bold mb-2">1/2</div>
-                        <p className="text-lg opacity-90">What are Fractions?</p>
-                      </div>
-                    </div>
-                    <div className="md:col-span-2 p-6">
-                      <div className="flex items-start justify-between gap-4 mb-4">
-                        <div>
-                          <h4 className="text-2xl font-display font-bold mb-2" data-testid="text-lesson-title">{currentLesson.title}</h4>
-                          <p className="text-muted-foreground" data-testid="text-lesson-description">{currentLesson.description}</p>
-                        </div>
-                        <div className="flex gap-1">
-                          {[1, 2, 3].map((star) => (
-                            <Star
-                              key={star}
-                              className={`w-6 h-6 ${
-                                lessonProgress && lessonProgress.score >= star
-                                  ? "text-yellow-400 fill-yellow-400"
-                                  : "text-muted-foreground/30"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      {lessonProgress && (
-                        <div className="mb-4">
-                          <div className="flex justify-between text-sm text-muted-foreground mb-1">
-                            <span>Progress</span>
-                            <span>{Math.round((lessonProgress.correctAnswers / lessonProgress.totalQuestions) * 100)}%</span>
-                          </div>
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-                              style={{ width: `${(lessonProgress.correctAnswers / lessonProgress.totalQuestions) * 100}%` }}
-                            />
+              <div className="grid md:grid-cols-2 gap-6">
+                {lessons.map((lesson, index) => {
+                  const lessonProg = getLessonProgress(lesson.id);
+                  return (
+                    <Card
+                      key={lesson.id}
+                      className="overflow-hidden cursor-pointer hover-elevate active-elevate-2"
+                      onClick={() => handleSelectLesson(lesson)}
+                      data-testid={`card-lesson-${lesson.order}`}
+                    >
+                      <div className="flex flex-col">
+                        <div className={`bg-gradient-to-br ${getLessonGradient(lesson.order)} p-6 flex items-center justify-center`}>
+                          <div className="text-center text-white">
+                            <div className="text-5xl font-display font-bold mb-2">{getLessonIcon(lesson.order)}</div>
+                            <p className="text-base opacity-90">Lesson {lesson.order}</p>
                           </div>
                         </div>
-                      )}
-                      <Button size="lg" className="w-full md:w-auto" data-testid="button-start-lesson-card">
-                        {lessonProgress ? "Continue Learning" : "Start Lesson"}
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              )}
+                        <div className="p-5">
+                          <div className="flex items-start justify-between gap-3 mb-3">
+                            <div className="flex-1">
+                              <h4 className="text-xl font-display font-bold mb-1" data-testid={`text-lesson-title-${lesson.order}`}>{lesson.title}</h4>
+                              <p className="text-sm text-muted-foreground line-clamp-2" data-testid={`text-lesson-desc-${lesson.order}`}>{lesson.description}</p>
+                            </div>
+                            <div className="flex gap-0.5">
+                              {[1, 2, 3].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`w-5 h-5 ${
+                                    lessonProg && lessonProg.score >= star
+                                      ? "text-yellow-400 fill-yellow-400"
+                                      : "text-muted-foreground/30"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          {lessonProg && (
+                            <div className="mb-3">
+                              <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                                <span>Progress</span>
+                                <span>{Math.round((lessonProg.correctAnswers / lessonProg.totalQuestions) * 100)}%</span>
+                              </div>
+                              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+                                  style={{ width: `${(lessonProg.correctAnswers / lessonProg.totalQuestions) * 100}%` }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                          <Button size="default" className="w-full" data-testid={`button-start-lesson-${lesson.order}`}>
+                            {lessonProg ? "Continue" : "Start Lesson"}
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
             </motion.div>
 
             <motion.div
