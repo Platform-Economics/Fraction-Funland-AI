@@ -257,12 +257,14 @@ export function getEquationSteps(question: string): { equation: string; steps: E
     return {
       equation: "$1.00 ÷ 4 = ?",
       steps: [
-        { content: "1.00 ÷ 4", explanation: "Set up the division" },
-        { content: "4 goes into 10 → 2 times", explanation: "4 × 2 = 8, which is close to 10" },
-        { content: "10 - 8 = 2", explanation: "Subtract to find remainder" },
+        { content: "    __", explanation: "Draw the division house" },
+        { content: "4 ) 1.00", explanation: "Divisor outside, dividend inside" },
+        { content: "4 into 10 = 2", explanation: "4 goes into 10 two times" },
+        { content: "2 × 4 = 8, 10-8 = 2", explanation: "Multiply and subtract" },
         { content: "Bring down 0 → 20", explanation: "20 left to divide" },
-        { content: "4 goes into 20 → 5 times", explanation: "4 × 5 = 20, perfect!" },
-        { content: "Answer: $0.25", explanation: "Each person gets 25 cents (1 quarter)" },
+        { content: "4 into 20 = 5", explanation: "4 goes into 20 five times" },
+        { content: "Answer: 0.25", explanation: "Each gets 25 cents!" },
+        { content: "CHECK: 4 × 0.25 = 1.00", explanation: "Multiply to verify!" },
       ],
     };
   }
@@ -271,11 +273,29 @@ export function getEquationSteps(question: string): { equation: string; steps: E
     return {
       equation: "$2.00 ÷ 4 = ?",
       steps: [
-        { content: "2.00 ÷ 4", explanation: "Set up the division" },
-        { content: "4 goes into 20 → 5 times", explanation: "4 × 5 = 20" },
-        { content: "20 - 20 = 0", explanation: "No remainder for the dollars" },
-        { content: "Bring down 0 → 0", explanation: "Nothing left to divide" },
-        { content: "Answer: $0.50", explanation: "Each person gets 50 cents (2 quarters)" },
+        { content: "    __", explanation: "Draw the division house" },
+        { content: "4 ) 2.00", explanation: "Divisor outside, dividend inside" },
+        { content: "4 into 20 = 5", explanation: "4 goes into 20 five times" },
+        { content: "5 × 4 = 20, 20-20 = 0", explanation: "Perfect division!" },
+        { content: "Answer: 0.50", explanation: "Each gets 50 cents!" },
+        { content: "CHECK: 4 × 0.50 = 2.00", explanation: "Multiply to verify!" },
+      ],
+    };
+  }
+
+  if (question.includes("100") && question.includes("4")) {
+    return {
+      equation: "100 ÷ 4 = ?",
+      steps: [
+        { content: "    __", explanation: "Draw the division house" },
+        { content: "4 ) 100", explanation: "4 outside, 100 inside" },
+        { content: "4 into 10 = 2", explanation: "4 goes into 10 two times" },
+        { content: "2 × 4 = 8", explanation: "Write 8 under the 10" },
+        { content: "10 - 8 = 2", explanation: "Subtract to get remainder" },
+        { content: "Bring down 0 → 20", explanation: "Now divide 20" },
+        { content: "4 into 20 = 5", explanation: "4 goes into 20 five times" },
+        { content: "Answer: 25", explanation: "100 ÷ 4 = 25!" },
+        { content: "CHECK: 4 × 25 = 100", explanation: "Multiply to verify!" },
       ],
     };
   }
@@ -306,10 +326,11 @@ export function getEquationSteps(question: string): { equation: string; steps: E
   return {
     equation: question.slice(0, 30) + "...",
     steps: [
-      { content: "Read the problem carefully", explanation: "Understand what's being asked" },
-      { content: "Identify the numbers", explanation: "Find the important values" },
+      { content: "Read the problem", explanation: "Understand what's being asked" },
+      { content: "Find the numbers", explanation: "What numbers do we need?" },
       { content: "Choose the operation", explanation: "Add, subtract, multiply, or divide?" },
-      { content: "Solve step by step", explanation: "Work through it carefully" },
+      { content: "Work it out step by step", explanation: "Show your work!" },
+      { content: "Check your answer", explanation: "Does it make sense?" },
     ],
   };
 }

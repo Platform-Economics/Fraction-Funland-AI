@@ -186,6 +186,135 @@ function ShareTheDollarDemo() {
   );
 }
 
+function TraditionalDivisionDemo() {
+  const [step, setStep] = useState(0);
+  const maxSteps = 7;
+  const steps = [
+    { text: "Let's divide 100 ÷ 4 the old-fashioned way!" },
+    { text: "Write it in the 'division house' - divisor outside, dividend inside" },
+    { text: "4 goes into 10 how many times? 2 times! Write 2 above." },
+    { text: "2 × 4 = 8. Write 8 below and subtract: 10 - 8 = 2" },
+    { text: "Bring down the 0. Now we have 20. 4 goes into 20... 5 times!" },
+    { text: "5 × 4 = 20. Subtract: 20 - 20 = 0. We're done! Answer: 25" },
+    { text: "CHECK with multiplication: 4 × 25 = 100. It works!" },
+  ];
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div className="bg-amber-50 dark:bg-amber-900/20 p-5 rounded-xl border-2 border-amber-200 dark:border-amber-800 min-w-[280px]">
+        <div className="font-mono text-xl md:text-2xl relative">
+          <div className="flex items-start">
+            <div className="flex flex-col items-end mr-1">
+              <motion.span 
+                className="text-blue-600 dark:text-blue-400 font-bold text-lg"
+                animate={{ opacity: step >= 1 ? 1 : 0 }}
+              >
+                4
+              </motion.span>
+            </div>
+            <div className="relative">
+              <motion.div 
+                className="absolute -left-1 top-0 bottom-0 w-1 bg-foreground"
+                animate={{ opacity: step >= 1 ? 1 : 0 }}
+              />
+              <motion.div 
+                className="absolute -left-1 -top-1 right-0 h-1 bg-foreground rounded-tr-lg"
+                style={{ width: "calc(100% + 4px)" }}
+                animate={{ opacity: step >= 1 ? 1 : 0 }}
+              />
+              <div className="pl-3 pt-2">
+                <div className="flex items-center h-8">
+                  <motion.span 
+                    className="text-green-600 dark:text-green-400 font-bold"
+                    animate={{ opacity: step >= 2 ? 1 : 0 }}
+                  >
+                    2
+                  </motion.span>
+                  <motion.span 
+                    className="text-green-600 dark:text-green-400 font-bold"
+                    animate={{ opacity: step >= 4 ? 1 : 0 }}
+                  >
+                    5
+                  </motion.span>
+                </div>
+                <div className="border-b-2 border-dashed border-gray-300 dark:border-gray-600 mb-1" />
+                <motion.div animate={{ opacity: step >= 1 ? 1 : 0 }}>
+                  <span className={step >= 2 ? "text-muted-foreground" : ""}>1</span>
+                  <span className={step >= 2 ? "text-purple-600 dark:text-purple-400 font-bold" : ""}>0</span>
+                  <span className={step >= 4 ? "text-muted-foreground" : ""}>0</span>
+                </motion.div>
+                {step >= 3 && (
+                  <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 dark:text-red-400 text-base">
+                    <div className="flex items-center">
+                      <span className="mr-1">-</span>
+                      <span className="w-4">8</span>
+                      <span className="text-xs text-muted-foreground ml-2">(4×2)</span>
+                    </div>
+                    <div className="border-t border-foreground w-8 my-0.5" />
+                    <span className="pl-1">2</span>
+                    {step >= 4 && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-purple-600 dark:text-purple-400">0</motion.span>}
+                  </motion.div>
+                )}
+                {step >= 5 && (
+                  <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 dark:text-red-400 text-base">
+                    <div className="flex items-center">
+                      <span className="mr-1">-</span>
+                      <span>20</span>
+                      <span className="text-xs text-muted-foreground ml-2">(4×5)</span>
+                    </div>
+                    <div className="border-t border-foreground w-8 my-0.5" />
+                    <span className="pl-2 text-green-600 dark:text-green-400 font-bold">0</span>
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {step >= 6 && (
+        <motion.div 
+          className="bg-green-100 dark:bg-green-900/30 p-4 rounded-xl border-2 border-green-300 dark:border-green-700"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+        >
+          <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-2 text-center">Check with Multiplication!</p>
+          <div className="font-mono text-xl text-center space-y-1">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-blue-600 dark:text-blue-400">4</span>
+              <span>×</span>
+              <span className="text-green-600 dark:text-green-400">25</span>
+              <span>=</span>
+              <span className="font-bold">100</span>
+            </div>
+            <motion.p 
+              className="text-sm text-green-600 dark:text-green-400 font-bold"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              It matches! Our answer is correct!
+            </motion.p>
+          </div>
+        </motion.div>
+      )}
+
+      <motion.p key={step} className="text-center font-semibold text-base px-4" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+        {steps[step].text}
+      </motion.p>
+      
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} data-testid="button-trad-div-prev">
+          <ChevronLeft className="w-4 h-4" /> Back
+        </Button>
+        <Button size="sm" onClick={() => setStep(Math.min(maxSteps - 1, step + 1))} disabled={step === maxSteps - 1} data-testid="button-trad-div-next">
+          Next <ChevronRight className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function LongDivisionDemo() {
   const [step, setStep] = useState(0);
   const maxSteps = 5;
@@ -418,8 +547,13 @@ const lessonTutorials: Record<string, TutorialStep[]> = {
       visual: <ShareTheDollarDemo />,
     },
     {
-      title: "See the Math",
-      description: "Here's how we write the division step by step - just like you'd do on paper! Click Next to see each step.",
+      title: "Traditional Long Division",
+      description: "Here's the classic way to divide - with the 'division house'! We'll also check our answer using multiplication.",
+      visual: <TraditionalDivisionDemo />,
+    },
+    {
+      title: "Division with Decimals",
+      description: "Now let's try with dollars and cents. The same method works with decimals too!",
       visual: <LongDivisionDemo />,
     },
     {
