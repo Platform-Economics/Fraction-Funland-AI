@@ -7,7 +7,8 @@ import { FractionVisual } from "./FractionVisual";
 import { AnswerOption } from "./AnswerOption";
 import { Mascot } from "./Mascot";
 import { CelebrationModal } from "./CelebrationModal";
-import { Lightbulb, ArrowRight, Volume2, VolumeX } from "lucide-react";
+import { SketchPad, getEquationSteps } from "./SketchPad";
+import { Lightbulb, ArrowRight, Volume2, VolumeX, PenLine } from "lucide-react";
 import { soundManager } from "@/lib/sounds";
 import type { Question } from "@shared/schema";
 
@@ -26,6 +27,7 @@ export function Quiz({ questions, onComplete, onExit }: QuizProps) {
   const [showCelebration, setShowCelebration] = useState(false);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showSketchPad, setShowSketchPad] = useState(false);
 
   const currentQuestion = questions[currentIndex];
   const isLastQuestion = currentIndex === questions.length - 1;
@@ -138,17 +140,30 @@ export function Quiz({ questions, onComplete, onExit }: QuizProps) {
               >
                 {currentQuestion.question}
               </motion.h2>
-              {currentQuestion.hint && !showResult && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setShowHint(!showHint)}
-                  data-testid="button-hint"
-                  className={showHint ? "text-primary" : ""}
-                >
-                  <Lightbulb className="w-5 h-5" />
-                </Button>
-              )}
+              <div className="flex gap-1">
+                {!showResult && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setShowSketchPad(true)}
+                    data-testid="button-sketchpad"
+                    title="Open Scratch Pad"
+                  >
+                    <PenLine className="w-5 h-5" />
+                  </Button>
+                )}
+                {currentQuestion.hint && !showResult && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setShowHint(!showHint)}
+                    data-testid="button-hint"
+                    className={showHint ? "text-primary" : ""}
+                  >
+                    <Lightbulb className="w-5 h-5" />
+                  </Button>
+                )}
+              </div>
             </div>
 
             {(currentQuestion.visualType && currentQuestion.numerator !== undefined && currentQuestion.denominator !== undefined) && (
@@ -231,6 +246,15 @@ export function Quiz({ questions, onComplete, onExit }: QuizProps) {
         onContinue={handleComplete}
         onRetry={handleRetry}
       />
+
+      <AnimatePresence>
+        {showSketchPad && currentQuestion && (
+          <SketchPad
+            {...getEquationSteps(currentQuestion.question)}
+            onClose={() => setShowSketchPad(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
