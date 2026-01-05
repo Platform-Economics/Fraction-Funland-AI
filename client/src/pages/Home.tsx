@@ -13,11 +13,12 @@ import { Star, Trophy, ArrowLeft, Flame } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Lesson, Question, UserProgress } from "@shared/schema";
 import backgroundImage from "@assets/freepik__sara-is-an-elementary-school-teacher-in-a-fairytal__4_1767594478975.png";
+import welcomeVideo from "@assets/freepik__a-vibrant-animated-scene-unfolds-in-a-whimsical-fo__4_1767595518398.mp4";
 
-type GameState = "welcome" | "intro" | "tutorial" | "quiz" | "complete";
+type GameState = "splash" | "welcome" | "intro" | "tutorial" | "quiz" | "complete";
 
 export default function Home() {
-  const [gameState, setGameState] = useState<GameState>("welcome");
+  const [gameState, setGameState] = useState<GameState>("splash");
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
 
   const { data: lessons = [], isLoading: loadingLessons } = useQuery<Lesson[]>({
@@ -71,6 +72,10 @@ export default function Home() {
     setSelectedLesson(null);
   };
 
+  const handleEnterApp = () => {
+    setGameState("welcome");
+  };
+
   const getLessonProgress = (lessonId: string) => {
     return progress?.lessonProgress?.find(p => p.lessonId === lessonId);
   };
@@ -111,7 +116,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            {gameState !== "welcome" && (
+            {gameState !== "welcome" && gameState !== "splash" && (
               <Button
                 size="icon"
                 variant="ghost"
@@ -144,6 +149,70 @@ export default function Home() {
       </header>
 
       <main>
+        {gameState === "splash" && (
+          <div className="min-h-[calc(100vh-60px)] flex flex-col items-center justify-center px-4 py-8">
+            <motion.div
+              className="max-w-lg w-full text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <motion.h1
+                className="text-4xl md:text-5xl font-display font-bold mb-2"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
+                  Welcome Back
+                </span>
+              </motion.h1>
+              <motion.h2
+                className="text-5xl md:text-6xl font-display font-bold text-foreground mb-8"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4 }}
+                data-testid="text-welcome-name"
+              >
+                Chloe!
+              </motion.h2>
+              
+              <motion.div
+                className="rounded-2xl overflow-hidden shadow-2xl mb-8"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-auto max-h-[300px] object-cover"
+                  data-testid="video-welcome"
+                >
+                  <source src={welcomeVideo} type="video/mp4" />
+                </video>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+              >
+                <Button
+                  size="lg"
+                  className="text-xl px-8 py-6 gap-2"
+                  onClick={handleEnterApp}
+                  data-testid="button-start-playing"
+                >
+                  <Star className="w-6 h-6" />
+                  Start Playing!
+                </Button>
+              </motion.div>
+            </motion.div>
+          </div>
+        )}
+
         {gameState === "welcome" && (
           <div className="max-w-6xl mx-auto px-4 py-8">
             <motion.div
