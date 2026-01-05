@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, type TargetAndTransition } from "framer-motion";
 
 type MascotMood = "happy" | "excited" | "thinking" | "encouraging" | "celebrating";
 
@@ -16,7 +16,7 @@ export function Mascot({ mood = "happy", message, size = "medium", className = "
     large: "w-32 h-32",
   };
 
-  const moodEmotes: Record<MascotMood, { eyes: string; mouth: string; animation: object }> = {
+  const moodEmotes: Record<MascotMood, { eyes: string; mouth: string; animation: TargetAndTransition }> = {
     happy: {
       eyes: "^",
       mouth: "◡",
