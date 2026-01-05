@@ -192,7 +192,7 @@ function TraditionalDivisionDemo() {
   const steps = [
     { text: "Let's divide 100 ÷ 4 the old-fashioned way!" },
     { text: "Write it in the 'division house' - divisor outside, dividend inside" },
-    { text: "4 goes into 10 how many times? 2 times! Write 2 above." },
+    { text: "4 goes into 10 how many times? 2 times! Write 2 above the 0." },
     { text: "2 × 4 = 8. Write 8 below and subtract: 10 - 8 = 2" },
     { text: "Bring down the 0. Now we have 20. 4 goes into 20... 5 times!" },
     { text: "5 × 4 = 20. Subtract: 20 - 20 = 0. We're done! Answer: 25" },
@@ -201,73 +201,83 @@ function TraditionalDivisionDemo() {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="bg-amber-50 dark:bg-amber-900/20 p-5 rounded-xl border-2 border-amber-200 dark:border-amber-800 min-w-[280px]">
-        <div className="font-mono text-xl md:text-2xl relative">
-          <div className="flex items-start">
-            <div className="flex flex-col items-end mr-1">
+      <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-xl border-2 border-amber-200 dark:border-amber-800">
+        <div className="font-mono text-2xl md:text-3xl">
+          <div className="flex">
+            <div className="flex flex-col justify-end mr-2 pb-1">
               <motion.span 
-                className="text-blue-600 dark:text-blue-400 font-bold text-lg"
+                className="text-blue-600 dark:text-blue-400 font-bold"
                 animate={{ opacity: step >= 1 ? 1 : 0 }}
               >
                 4
               </motion.span>
             </div>
-            <div className="relative">
+            <div className="flex flex-col">
+              <div className="flex justify-end pr-1 mb-1">
+                <motion.span 
+                  className="text-green-600 dark:text-green-400 font-bold"
+                  animate={{ opacity: step >= 2 ? 1 : 0 }}
+                >
+                  2
+                </motion.span>
+                <motion.span 
+                  className="text-green-600 dark:text-green-400 font-bold"
+                  animate={{ opacity: step >= 4 ? 1 : 0 }}
+                >
+                  5
+                </motion.span>
+              </div>
               <motion.div 
-                className="absolute -left-1 top-0 bottom-0 w-1 bg-foreground"
+                className="border-l-[3px] border-t-[3px] border-foreground rounded-tl-sm pl-2 pt-1"
                 animate={{ opacity: step >= 1 ? 1 : 0 }}
-              />
-              <motion.div 
-                className="absolute -left-1 -top-1 right-0 h-1 bg-foreground rounded-tr-lg"
-                style={{ width: "calc(100% + 4px)" }}
-                animate={{ opacity: step >= 1 ? 1 : 0 }}
-              />
-              <div className="pl-3 pt-2">
-                <div className="flex items-center h-8">
-                  <motion.span 
-                    className="text-green-600 dark:text-green-400 font-bold"
-                    animate={{ opacity: step >= 2 ? 1 : 0 }}
-                  >
-                    2
-                  </motion.span>
-                  <motion.span 
-                    className="text-green-600 dark:text-green-400 font-bold"
-                    animate={{ opacity: step >= 4 ? 1 : 0 }}
-                  >
-                    5
-                  </motion.span>
-                </div>
-                <div className="border-b-2 border-dashed border-gray-300 dark:border-gray-600 mb-1" />
-                <motion.div animate={{ opacity: step >= 1 ? 1 : 0 }}>
+              >
+                <div className="flex">
                   <span className={step >= 2 ? "text-muted-foreground" : ""}>1</span>
                   <span className={step >= 2 ? "text-purple-600 dark:text-purple-400 font-bold" : ""}>0</span>
                   <span className={step >= 4 ? "text-muted-foreground" : ""}>0</span>
-                </motion.div>
-                {step >= 3 && (
-                  <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 dark:text-red-400 text-base">
-                    <div className="flex items-center">
-                      <span className="mr-1">-</span>
-                      <span className="w-4">8</span>
-                      <span className="text-xs text-muted-foreground ml-2">(4×2)</span>
-                    </div>
-                    <div className="border-t border-foreground w-8 my-0.5" />
-                    <span className="pl-1">2</span>
-                    {step >= 4 && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-purple-600 dark:text-purple-400">0</motion.span>}
-                  </motion.div>
-                )}
-                {step >= 5 && (
-                  <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 dark:text-red-400 text-base">
-                    <div className="flex items-center">
-                      <span className="mr-1">-</span>
-                      <span>20</span>
-                      <span className="text-xs text-muted-foreground ml-2">(4×5)</span>
-                    </div>
-                    <div className="border-t border-foreground w-8 my-0.5" />
-                    <span className="pl-2 text-green-600 dark:text-green-400 font-bold">0</span>
-                  </motion.div>
-                )}
-              </div>
+                </div>
+              </motion.div>
             </div>
+          </div>
+          
+          <div className="ml-8 mt-2 space-y-1 text-xl">
+            {step >= 3 && (
+              <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="flex items-center text-red-500 dark:text-red-400">
+                  <span className="w-6 text-right">-</span>
+                  <span className="w-4 text-right">8</span>
+                  <span className="text-sm text-muted-foreground ml-3">(4×2)</span>
+                </div>
+                <div className="border-t-2 border-foreground w-10 ml-1" />
+                <div className="flex">
+                  <span className="w-6"></span>
+                  <span>2</span>
+                  {step >= 4 && (
+                    <motion.span 
+                      initial={{ opacity: 0, y: -10 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      className="text-purple-600 dark:text-purple-400 font-bold"
+                    >
+                      0
+                    </motion.span>
+                  )}
+                </div>
+              </motion.div>
+            )}
+            {step >= 5 && (
+              <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="flex items-center text-red-500 dark:text-red-400">
+                  <span className="w-4 text-right">-</span>
+                  <span>20</span>
+                  <span className="text-sm text-muted-foreground ml-2">(4×5)</span>
+                </div>
+                <div className="border-t-2 border-foreground w-10 ml-1" />
+                <div className="flex">
+                  <span className="w-6"></span>
+                  <span className="text-green-600 dark:text-green-400 font-bold">0</span>
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
       </div>
