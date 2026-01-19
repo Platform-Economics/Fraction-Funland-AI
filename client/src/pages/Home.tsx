@@ -54,11 +54,11 @@ export default function Home() {
     },
   });
 
-  // Start quiet ambient music when overlay shows
+  // Start background music when overlay shows (before name input)
   useEffect(() => {
-    if (showWelcomeOverlay && !ambientMusicRef.current) {
-      // Start quiet background music that plays until user proceeds
-      ambientMusicRef.current = soundManager.playBackgroundMusic(120, 0.15);
+    if (showWelcomeOverlay && !nameSubmitted && !ambientMusicRef.current) {
+      // Start background music that plays while waiting for name
+      ambientMusicRef.current = soundManager.playBackgroundMusic(60, 0.06);
     }
     
     return () => {
@@ -67,7 +67,7 @@ export default function Home() {
         ambientMusicRef.current = null;
       }
     };
-  }, [showWelcomeOverlay]);
+  }, [showWelcomeOverlay, nameSubmitted]);
 
   // Clean up audio when leaving splash screen
   useEffect(() => {
@@ -90,14 +90,14 @@ export default function Home() {
   const handleNameSubmit = async () => {
     if (!userName.trim()) return;
     
-    setNameSubmitted(true);
-    setAudioLoading(true);
-    
     // Stop ambient music before playing greeting
     if (ambientMusicRef.current) {
       ambientMusicRef.current();
       ambientMusicRef.current = null;
     }
+    
+    setNameSubmitted(true);
+    setAudioLoading(true);
     
     try {
       const audio = new Audio(`/api/welcome-audio?name=${encodeURIComponent(userName.trim())}`);
@@ -106,7 +106,7 @@ export default function Home() {
       audio.addEventListener("canplaythrough", () => {
         setAudioReady(true);
         setAudioLoading(false);
-        // Auto-play the greeting
+        // Auto-play the greeting with music
         playGreeting(audio);
       }, { once: true });
       
@@ -129,22 +129,17 @@ export default function Home() {
     }
   };
 
-  // Play the personalized greeting
+  // Play the personalized greeting with background music
   const playGreeting = async (audio: HTMLAudioElement) => {
     try {
       setAudioPlaying(true);
       
-      // Start background music (estimated 8 seconds for the intro)
-      stopMusicRef.current = soundManager.playBackgroundMusic(10);
+      // Start background music again (plays with the voice greeting)
+      const duration = audio.duration || 8;
+      stopMusicRef.current = soundManager.playBackgroundMusic(duration + 2, 0.06);
       
-      // Play voice narration
+      // Play voice narration on top
       await audio.play();
-      
-      // Schedule kids cheering for the last 2 seconds
-      const duration = audio.duration || 6;
-      setTimeout(() => {
-        soundManager.playKidsCheering(2);
-      }, Math.max(0, (duration - 2) * 1000));
       
     } catch (e) {
       console.warn("Audio playback failed:", e);
