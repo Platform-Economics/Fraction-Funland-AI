@@ -12,7 +12,6 @@ import { VisualTutorial } from "@/components/VisualTutorial";
 import { Input } from "@/components/ui/input";
 import { Star, Trophy, ArrowLeft, Flame, Volume2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { soundManager } from "@/lib/sounds";
 import type { Lesson, Question, UserProgress } from "@shared/schema";
 import backgroundImage from "@assets/freepik__sara-is-an-elementary-school-teacher-in-a-fairytal__4_1767594478975.png";
 import welcomeVideo from "@assets/freepik__a-vibrant-animated-scene-unfolds-in-a-whimsical-fo__4_1767595518398.mp4";
@@ -29,8 +28,6 @@ export default function Home() {
   const [audioReady, setAudioReady] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
-  const stopMusicRef = useRef<(() => void) | null>(null);
-  const ambientMusicRef = useRef<(() => void) | null>(null);
 
   const { data: lessons = [], isLoading: loadingLessons } = useQuery<Lesson[]>({
     queryKey: ["/api/lessons"],
@@ -54,21 +51,6 @@ export default function Home() {
     },
   });
 
-  // Start background music when overlay shows (before name input)
-  useEffect(() => {
-    if (showWelcomeOverlay && !nameSubmitted && !ambientMusicRef.current) {
-      // Start background music that plays while waiting for name
-      ambientMusicRef.current = soundManager.playBackgroundMusic(60, 0.06);
-    }
-    
-    return () => {
-      if (ambientMusicRef.current) {
-        ambientMusicRef.current();
-        ambientMusicRef.current = null;
-      }
-    };
-  }, [showWelcomeOverlay, nameSubmitted]);
-
   // Clean up audio when leaving splash screen
   useEffect(() => {
     if (gameState !== "splash") {
@@ -76,25 +58,12 @@ export default function Home() {
         voiceAudioRef.current.pause();
         voiceAudioRef.current.src = "";
       }
-      if (stopMusicRef.current) {
-        stopMusicRef.current();
-      }
-      if (ambientMusicRef.current) {
-        ambientMusicRef.current();
-        ambientMusicRef.current = null;
-      }
     }
   }, [gameState]);
 
   // Submit name and load personalized greeting
   const handleNameSubmit = async () => {
     if (!userName.trim()) return;
-    
-    // Stop ambient music before playing greeting
-    if (ambientMusicRef.current) {
-      ambientMusicRef.current();
-      ambientMusicRef.current = null;
-    }
     
     setNameSubmitted(true);
     setAudioLoading(true);
@@ -106,15 +75,12 @@ export default function Home() {
       audio.addEventListener("canplaythrough", () => {
         setAudioReady(true);
         setAudioLoading(false);
-        // Auto-play the greeting with music
+        // Auto-play the greeting
         playGreeting(audio);
       }, { once: true });
       
       audio.addEventListener("ended", () => {
         setAudioPlaying(false);
-        if (stopMusicRef.current) {
-          stopMusicRef.current();
-        }
       });
       
       audio.addEventListener("error", () => {
@@ -129,18 +95,11 @@ export default function Home() {
     }
   };
 
-  // Play the personalized greeting with background music
+  // Play the personalized voice greeting
   const playGreeting = async (audio: HTMLAudioElement) => {
     try {
       setAudioPlaying(true);
-      
-      // Start background music again (plays with the voice greeting)
-      const duration = audio.duration || 8;
-      stopMusicRef.current = soundManager.playBackgroundMusic(duration + 2, 0.06);
-      
-      // Play voice narration on top
       await audio.play();
-      
     } catch (e) {
       console.warn("Audio playback failed:", e);
       setAudioPlaying(false);
