@@ -82,7 +82,7 @@ class SoundManager {
   }
 
   // Play upbeat kids background music using Web Audio oscillators
-  playBackgroundMusic(duration: number = 8): () => void {
+  playBackgroundMusic(duration: number = 8, volume: number = 0.08): () => void {
     if (!this.enabled) return () => {};
     
     try {
@@ -114,7 +114,7 @@ class SoundManager {
           gain.connect(ctx.destination);
           osc.frequency.value = note.freq;
           osc.type = "triangle";
-          gain.gain.setValueAtTime(0.08, now + loop * 2.4 + note.time);
+          gain.gain.setValueAtTime(volume, now + loop * 2.4 + note.time);
           gain.gain.exponentialRampToValueAtTime(0.01, now + loop * 2.4 + note.time + 0.25);
           osc.start(now + loop * 2.4 + note.time);
           osc.stop(now + loop * 2.4 + note.time + 0.25);
