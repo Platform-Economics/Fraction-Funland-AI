@@ -2,6 +2,8 @@
 # AI ARCHITECTURE AND CONSULTING
 # JASON@GATEWAYGLOBAL.AI
 
+Demo App: https://fraction-funland--Jasion.replit.app
+
 # Fraction Funland
 
 An interactive, gamified web application designed to teach children fractions through engaging visual lessons, quizzes, and rewards. Built with a playful, kid-friendly aesthetic inspired by popular learning apps like Duolingo.
