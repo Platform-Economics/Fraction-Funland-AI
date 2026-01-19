@@ -29,16 +29,6 @@ export default function Home() {
   const [audioPlaying, setAudioPlaying] = useState(false);
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const stopMusicRef = useRef<(() => void) | null>(null);
-  const introMusicStarted = useRef(false);
-
-  // Start background music when splash screen loads
-  useEffect(() => {
-    if (gameState === "splash" && !introMusicStarted.current) {
-      introMusicStarted.current = true;
-      // Play intro music for 30 seconds (will be stopped when video ends)
-      stopMusicRef.current = soundManager.playBackgroundMusic(30);
-    }
-  }, [gameState]);
 
   const { data: lessons = [], isLoading: loadingLessons } = useQuery<Lesson[]>({
     queryKey: ["/api/lessons"],
@@ -167,11 +157,6 @@ export default function Home() {
   };
 
   const handleVideoEnded = () => {
-    // Stop the intro music when name input appears
-    if (stopMusicRef.current) {
-      stopMusicRef.current();
-      stopMusicRef.current = null;
-    }
     setShowWelcomeOverlay(true);
   };
 
