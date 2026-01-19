@@ -1,3 +1,7 @@
+# CREATED BY JASON TRINDADE, GATEWAY GLOBAL AI
+# AI ARCHITECTURE AND CONSULTING
+# JASON@GATEWAYGLOBAL.AI
+
 # Fraction Funland
 
 An interactive, gamified web application designed to teach children fractions through engaging visual lessons, quizzes, and rewards. Built with a playful, kid-friendly aesthetic inspired by popular learning apps like Duolingo.
