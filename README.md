@@ -134,4 +134,10 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
+## Team
+
+This project is being developed by **Jason Trindade** and his two sons **Drew Trindade** and **Keanu Trindade**.
+
+---
+
 Made with love for young learners everywhere.
