@@ -81,47 +81,121 @@ class SoundManager {
     setTimeout(() => this.playTone(1100, 0.15, "sine", 0.2), 100);
   }
 
-  // Play upbeat kids background music using Web Audio oscillators
+  // Play a grand, magical intro fanfare
   playBackgroundMusic(duration: number = 8): () => void {
     if (!this.enabled) return () => {};
     
     try {
       const ctx = this.getContext();
       const now = ctx.currentTime;
+      const oscillators: OscillatorNode[] = [];
       
-      // Create a simple cheerful melody pattern
+      // Grand opening fanfare melody - magical and building
       const melody = [
-        { freq: 523, time: 0 },     // C5
-        { freq: 659, time: 0.3 },   // E5
-        { freq: 784, time: 0.6 },   // G5
-        { freq: 659, time: 0.9 },   // E5
-        { freq: 523, time: 1.2 },   // C5
-        { freq: 587, time: 1.5 },   // D5
-        { freq: 659, time: 1.8 },   // E5
-        { freq: 784, time: 2.1 },   // G5
+        // Opening flourish
+        { freq: 392, time: 0, dur: 0.3 },      // G4 - gentle start
+        { freq: 523, time: 0.35, dur: 0.3 },   // C5
+        { freq: 659, time: 0.7, dur: 0.3 },    // E5
+        { freq: 784, time: 1.05, dur: 0.5 },   // G5 - hold
+        
+        // Rising phrase
+        { freq: 880, time: 1.6, dur: 0.25 },   // A5
+        { freq: 784, time: 1.9, dur: 0.25 },   // G5
+        { freq: 880, time: 2.2, dur: 0.25 },   // A5
+        { freq: 1047, time: 2.5, dur: 0.6 },   // C6 - climax
+        
+        // Gentle descent
+        { freq: 880, time: 3.2, dur: 0.3 },    // A5
+        { freq: 784, time: 3.55, dur: 0.3 },   // G5
+        { freq: 659, time: 3.9, dur: 0.3 },    // E5
+        { freq: 523, time: 4.25, dur: 0.5 },   // C5 - resolve
+        
+        // Magical sparkle ending
+        { freq: 1047, time: 4.9, dur: 0.15 },  // C6
+        { freq: 1319, time: 5.1, dur: 0.15 },  // E6
+        { freq: 1568, time: 5.3, dur: 0.4 },   // G6 - sparkle
+        
+        // Second phrase (if duration allows)
+        { freq: 523, time: 5.9, dur: 0.25 },   // C5
+        { freq: 659, time: 6.2, dur: 0.25 },   // E5
+        { freq: 784, time: 6.5, dur: 0.25 },   // G5
+        { freq: 1047, time: 6.8, dur: 0.6 },   // C6
+        { freq: 1319, time: 7.5, dur: 0.5 },   // E6 - final
       ];
       
-      const oscillators: OscillatorNode[] = [];
-      const gainNodes: GainNode[] = [];
+      // Harmony notes (played softer underneath)
+      const harmony = [
+        { freq: 262, time: 0, dur: 1.5 },      // C4 bass
+        { freq: 330, time: 0, dur: 1.5 },      // E4
+        { freq: 392, time: 1.6, dur: 1.5 },    // G4
+        { freq: 349, time: 3.2, dur: 1.5 },    // F4
+        { freq: 262, time: 4.9, dur: 1.2 },    // C4
+        { freq: 392, time: 5.9, dur: 2 },      // G4
+      ];
       
-      // Play melody in loop
-      const loops = Math.ceil(duration / 2.4);
-      for (let loop = 0; loop < loops; loop++) {
-        melody.forEach(note => {
+      // Play main melody with bright tone
+      melody.forEach(note => {
+        if (note.time < duration) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = note.freq;
+          osc.type = "sine";
+          
+          // Soft attack, gentle decay
+          gain.gain.setValueAtTime(0, now + note.time);
+          gain.gain.linearRampToValueAtTime(0.12, now + note.time + 0.05);
+          gain.gain.setValueAtTime(0.1, now + note.time + note.dur * 0.7);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + note.time + note.dur);
+          
+          osc.start(now + note.time);
+          osc.stop(now + note.time + note.dur + 0.1);
+          oscillators.push(osc);
+        }
+      });
+      
+      // Play harmony with warm pad sound
+      harmony.forEach(note => {
+        if (note.time < duration) {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.frequency.value = note.freq;
           osc.type = "triangle";
-          gain.gain.setValueAtTime(0.08, now + loop * 2.4 + note.time);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + loop * 2.4 + note.time + 0.25);
-          osc.start(now + loop * 2.4 + note.time);
-          osc.stop(now + loop * 2.4 + note.time + 0.25);
+          
+          gain.gain.setValueAtTime(0, now + note.time);
+          gain.gain.linearRampToValueAtTime(0.04, now + note.time + 0.2);
+          gain.gain.setValueAtTime(0.03, now + note.time + note.dur * 0.8);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + note.time + note.dur);
+          
+          osc.start(now + note.time);
+          osc.stop(now + note.time + note.dur + 0.1);
           oscillators.push(osc);
-          gainNodes.push(gain);
-        });
-      }
+        }
+      });
+      
+      // Add magical shimmer effect
+      const shimmerTimes = [0.7, 1.05, 2.5, 4.9, 5.3, 6.8];
+      shimmerTimes.forEach(time => {
+        if (time < duration) {
+          [2093, 2637, 3136].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = freq;
+            osc.type = "sine";
+            gain.gain.setValueAtTime(0, now + time + i * 0.02);
+            gain.gain.linearRampToValueAtTime(0.02, now + time + i * 0.02 + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + time + i * 0.02 + 0.3);
+            osc.start(now + time + i * 0.02);
+            osc.stop(now + time + i * 0.02 + 0.35);
+            oscillators.push(osc);
+          });
+        }
+      });
       
       return () => {
         oscillators.forEach(o => { try { o.stop(); } catch(e) {} });
