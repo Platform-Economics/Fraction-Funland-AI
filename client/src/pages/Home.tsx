@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,9 @@ import { GameBadge } from "@/components/Badge";
 import { LessonIntro } from "@/components/LessonIntro";
 import { Quiz } from "@/components/Quiz";
 import { VisualTutorial } from "@/components/VisualTutorial";
-import { Star, Trophy, ArrowLeft, Flame } from "lucide-react";
+import { Star, Trophy, ArrowLeft, Flame, Volume2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { soundManager } from "@/lib/sounds";
 import type { Lesson, Question, UserProgress } from "@shared/schema";
 import backgroundImage from "@assets/freepik__sara-is-an-elementary-school-teacher-in-a-fairytal__4_1767594478975.png";
 import welcomeVideo from "@assets/freepik__a-vibrant-animated-scene-unfolds-in-a-whimsical-fo__4_1767595518398.mp4";
@@ -21,6 +22,10 @@ export default function Home() {
   const [gameState, setGameState] = useState<GameState>("splash");
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [showWelcomeOverlay, setShowWelcomeOverlay] = useState(false);
+  const [audioReady, setAudioReady] = useState(false);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
+  const stopMusicRef = useRef<(() => void) | null>(null);
 
   const { data: lessons = [], isLoading: loadingLessons } = useQuery<Lesson[]>({
     queryKey: ["/api/lessons"],
@@ -43,6 +48,60 @@ export default function Home() {
       queryClient.invalidateQueries({ queryKey: ["/api/progress"] });
     },
   });
+
+  // Load welcome voice audio when splash screen is shown
+  useEffect(() => {
+    if (gameState === "splash") {
+      const audio = new Audio(`/api/welcome-audio?name=Chloe`);
+      audio.preload = "auto";
+      
+      audio.addEventListener("canplaythrough", () => {
+        setAudioReady(true);
+      });
+      
+      audio.addEventListener("ended", () => {
+        setAudioPlaying(false);
+        if (stopMusicRef.current) {
+          stopMusicRef.current();
+        }
+      });
+      
+      voiceAudioRef.current = audio;
+      
+      return () => {
+        audio.pause();
+        audio.src = "";
+        if (stopMusicRef.current) {
+          stopMusicRef.current();
+        }
+      };
+    }
+  }, [gameState]);
+
+  // Play audio intro when ready and user interacts
+  const playWelcomeAudio = async () => {
+    if (voiceAudioRef.current && audioReady && !audioPlaying) {
+      try {
+        setAudioPlaying(true);
+        
+        // Start background music (estimated 8 seconds for the intro)
+        stopMusicRef.current = soundManager.playBackgroundMusic(10);
+        
+        // Play voice narration
+        await voiceAudioRef.current.play();
+        
+        // Schedule kids cheering for the last 2 seconds
+        const duration = voiceAudioRef.current.duration || 6;
+        setTimeout(() => {
+          soundManager.playKidsCheering(2);
+        }, Math.max(0, (duration - 2) * 1000));
+        
+      } catch (e) {
+        console.warn("Audio playback failed:", e);
+        setAudioPlaying(false);
+      }
+    }
+  };
 
   const handleSelectLesson = (lesson: Lesson) => {
     setSelectedLesson(lesson);
@@ -189,15 +248,56 @@ export default function Home() {
                     Chloe!
                   </h2>
                   
-                  <Button
-                    size="lg"
-                    className="text-xl px-8 py-6 gap-2"
-                    onClick={handleEnterApp}
-                    data-testid="button-start-playing"
-                  >
-                    <Star className="w-6 h-6" />
-                    Start Playing!
-                  </Button>
+                  <div className="flex flex-col gap-4 items-center">
+                    {audioReady && !audioPlaying && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.4 }}
+                      >
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          className="text-lg px-6 py-5 gap-2 bg-white/20 backdrop-blur-sm border-white/40 text-white"
+                          onClick={playWelcomeAudio}
+                          data-testid="button-play-intro"
+                        >
+                          <Volume2 className="w-5 h-5" />
+                          Hear Welcome Message
+                        </Button>
+                      </motion.div>
+                    )}
+                    
+                    {audioPlaying && (
+                      <motion.div
+                        className="flex items-center gap-2 text-white text-lg"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
+                        <div className="flex gap-1">
+                          {[0, 1, 2, 3].map((i) => (
+                            <motion.div
+                              key={i}
+                              className="w-1 h-4 bg-white rounded-full"
+                              animate={{ scaleY: [1, 1.5, 1] }}
+                              transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.1 }}
+                            />
+                          ))}
+                        </div>
+                        <span>Playing...</span>
+                      </motion.div>
+                    )}
+                    
+                    <Button
+                      size="lg"
+                      className="text-xl px-8 py-6 gap-2"
+                      onClick={handleEnterApp}
+                      data-testid="button-start-playing"
+                    >
+                      <Star className="w-6 h-6" />
+                      Start Playing!
+                    </Button>
+                  </div>
                 </motion.div>
               </motion.div>
             )}

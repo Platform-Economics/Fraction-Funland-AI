@@ -61,7 +61,10 @@ Preferred communication style: Simple, everyday language.
 - **Drizzle Kit**: Database migration and schema management via `db:push` script
 
 ### Third-Party Services
-- None currently integrated; architecture supports future additions (authentication, analytics)
+- **OpenAI (via Replit AI Integrations)**: Text-to-speech for voice introduction narration
+  - Endpoint: `/api/welcome-audio` generates personalized welcome message
+  - Uses "nova" voice for friendly, engaging narration
+  - Audio cached to filesystem for performance
 
 ### Key NPM Packages
 - **UI Framework**: @radix-ui/* components, class-variance-authority, tailwind-merge
@@ -69,7 +72,14 @@ Preferred communication style: Simple, everyday language.
 - **Animations**: framer-motion
 - **Form Handling**: react-hook-form, @hookform/resolvers, zod
 - **Session Management**: express-session, connect-pg-simple (prepared for auth)
+- **AI Integration**: openai (via Replit AI Integrations for TTS)
 - **Build Tools**: Vite, esbuild, tsx
+
+### Audio Features
+- **Voice Introduction**: AI-generated welcome narration on splash screen
+- **Background Music**: Web Audio oscillator-based cheerful melody
+- **Sound Effects**: Kids cheering, correct/wrong answers, celebrations
+- **Sound Manager**: Centralized audio control in `client/src/lib/sounds.ts`
 
 ### Fonts (External CDN)
 - Google Fonts: Nunito, Fredoka (loaded in client/index.html)
